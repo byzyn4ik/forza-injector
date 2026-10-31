@@ -1,0 +1,36 @@
+{
+  "format_version": 1,
+  "game": "fh2",
+  "name": "Forza Horizon 2",
+  "title_id": "1A96545B",
+  "package": "Anthem",
+  "build": {
+    "version": "1.0.0.64",
+    "exe": "forza_durango_release_final.exe",
+    "timestamp": "0x565501ed",
+    "image_size": "0x3a18000",
+    "file_size": 58204160
+  },
+  "runtime_hooks": {
+    "files_ready": {
+      "type": "vtable_function_pointer",
+      "rva": "0x2e6ef28",
+      "original_function_rva": "0x11f49b0",
+      "source": "forza-plugins/plugins/xtra-options/runtime/src/patches.json media_override_native_resolver"
+    },
+    "database": {
+      "type": "relative_call",
+      "rva": "0xf65322",
+      "original": "e8d9951200",
+      "thunk_rva": "0x108e9d4",
+      "source": "forza-plugins/plugins/xtra-options/runtime/src/patches.json addon_database_open (+ _thunk)"
+    },
+    "vehicle": {
+      "type": "vtable_function_pointer",
+      "rva": "0x2c5cc00",
+      "original_function_rva": "0x2a9400",
+      "source": "forza-plugins/plugins/xtra-options/runtime/src/patches.json local_car_vehicle_controls_update"
+    }
+  },
+  "game_runtime": "xtra-options"
+}

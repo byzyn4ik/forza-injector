@@ -1,0 +1,2 @@
+# Keep every file byte for byte as committed (sdk/include/fh2_plugin.h must stay identical to upstream).
+* -text

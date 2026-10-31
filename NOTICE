@@ -1,0 +1,16 @@
+forza_injector
+Copyright (C) 2026 Max (byzyn4ik)
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 3 or later (see LICENSE).
+
+core/ starts from Forza Horizon 2 Extra Options by Arthur (RokkuDayo),
+https://github.com/RokkuDayo/ForzaHorizon2_ExtraOptions, commit d66c85d
+(release 0.4.4), GPL-3.0. The first commit of this repository is that source
+unchanged apart from line ends (upstream's CRLF files are stored with LF); every
+change since is in the git history. sdk/include/fh2_plugin.h is that project's
+plugin API, unchanged (LF line ends).
+
+Forza Horizon, Forza Motorsport and Xbox are trademarks of Microsoft. This
+project is not affiliated with or endorsed by Microsoft, Playground Games,
+Turn 10 Studios or the authors of Azimuth.

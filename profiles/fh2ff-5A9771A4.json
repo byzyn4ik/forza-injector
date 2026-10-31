@@ -1,0 +1,16 @@
+{
+  "format_version": 1,
+  "game": "fh2ff",
+  "name": "Forza Horizon 2 Presents Fast & Furious",
+  "title_id": "5A9771A4",
+  "package": "Spire",
+  "build": {
+    "version": "1.0.0.6",
+    "exe": "forza_durango_release_final.exe",
+    "timestamp": "0x55b62fde",
+    "image_size": "0x3a89000",
+    "file_size": 58666496
+  },
+  "runtime_hooks": {},
+  "game_runtime": null
+}

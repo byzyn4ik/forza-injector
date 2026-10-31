@@ -1,0 +1,10 @@
+{
+  "format_version": 1,
+  "id": "hello",
+  "name": "Hello",
+  "author": "Max (byzyn4ik)",
+  "version": "0.1.0",
+  "description": "Sample plugin: logs the game it runs in, under Extra Options (API 1) or forza_injector (API 2).",
+  "games": [],
+  "dependencies": []
+}

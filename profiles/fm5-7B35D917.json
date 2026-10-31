@@ -1,0 +1,16 @@
+{
+  "format_version": 1,
+  "game": "fm5",
+  "name": "Forza Motorsport 5",
+  "title_id": "7B35D917",
+  "package": "Forza",
+  "build": {
+    "version": "1.0.0.20",
+    "exe": "forza_durango_release_final.exe",
+    "timestamp": "0x53d8d1f2",
+    "image_size": "0x279d000",
+    "file_size": 39317504
+  },
+  "runtime_hooks": {},
+  "game_runtime": null
+}

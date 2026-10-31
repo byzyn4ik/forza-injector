@@ -1,0 +1,16 @@
+{
+  "format_version": 1,
+  "game": "fm6",
+  "name": "Forza Motorsport 6",
+  "title_id": "64F9397E",
+  "package": "Monument",
+  "build": {
+    "version": "1.0.0.44",
+    "exe": "forza_durango_release_final.exe",
+    "timestamp": "0x58afb1cd",
+    "image_size": "0x1fc8000",
+    "file_size": 30932992
+  },
+  "runtime_hooks": {},
+  "game_runtime": null
+}

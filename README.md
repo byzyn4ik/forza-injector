@@ -20,6 +20,14 @@ section but `.rsrc`, their headers, the entry point and image base), which
 resource edits leave unchanged and any code change breaks. Another EXE that
 loads this `winmm.dll` and is not a supported Azimuth build is left alone.
 
+One code change is accepted on a branded Azimuth 1.0.4: the *launch patch*
+(`tools/patch_azimuth.py <exe> <game>\game\base`). With it, the game starts
+without Azimuth's launcher, and `--show-launcher` opens the launcher. The game
+window takes the game's name as its title, and the version details take
+`LegalCopyright` from the publisher in the game's AppxManifest. The host
+accepts it only when every patched site holds exactly the patch. With the
+original bytes put back, the file must have the release's code identity.
+
 The injector does not apply Extra Options gameplay patches, read its INI,
 verify an FH2 game hash, or restrict admission to the games in its profile
 table. A valid game mapped by a supported Azimuth host can load plugins,

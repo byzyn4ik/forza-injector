@@ -149,6 +149,63 @@ static int has_code_identity(const HostProfile *profile) {
     return 0;
 }
 
+/* The launch patch (tools/patch_azimuth.py) on Azimuth 1.0.4: the game starts
+   without Azimuth's launcher (its --skip-launcher check inverted; the argument
+   it looks for is now --show-launcher) and the game window's title points
+   into .rsrc (the game's name). When every site holds exactly the patch, a
+   copy of the file with the original bytes put back must have the release's
+   code identity; anything else is refused as before. */
+typedef struct { uint32_t rva; unsigned size; const unsigned char *original, *patched; } LaunchSite;
+static const unsigned char lp_true[] = {0xb3, 0x01}, lp_false[] = {0xb3, 0x00}, lp_clear[] = {0x32, 0xdb};
+static const unsigned char lp_jne[] = {0x75, 0x7e}, lp_je[] = {0x74, 0x7e};
+static const unsigned char lp_skip[] = {'-',0,'-',0,'s',0,'k',0,'i',0,'p',0,'-',0,'l',0,'a',0,'u',0,'n',0,'c',0,'h',0,'e',0,'r',0};
+static const unsigned char lp_show[] = {'-',0,'-',0,'s',0,'h',0,'o',0,'w',0,'-',0,'l',0,'a',0,'u',0,'n',0,'c',0,'h',0,'e',0,'r',0};
+static const LaunchSite launch_sites_104[] = {
+    {0xae94cu, 2, lp_clear, lp_true}, {0xae97cu, 2, lp_jne, lp_je},
+    {0xae9f8u, 2, lp_clear, lp_true}, {0xaea06u, 2, lp_true, lp_false},
+    {0x6db4b8u, sizeof(lp_skip), lp_skip, lp_show},
+};
+#define LAUNCH_TITLE_LEA_104 0x70d65u
+#define LAUNCH_TITLE_TEXT_104 0x6b9798u
+
+/* File offset of [rva, rva+length) inside a section's raw data (only the
+   section called name, when given); 0 when outside. */
+static size_t file_offset(const unsigned char *data, size_t size, uint32_t rva, uint32_t length, const char *name) {
+    size_t pe = read_u32(data + 0x3c);
+    unsigned count = data[pe + 6] | (unsigned)data[pe + 7] << 8;
+    size_t table = pe + 24 + (data[pe + 20] | (unsigned)data[pe + 21] << 8);
+    for (unsigned i = 0; i < count; ++i) {
+        const unsigned char *h = data + table + 40u * i;
+        if (name && !memory_equal(h, name, 8)) continue;
+        uint32_t va = read_u32(h + 12), raw_size = read_u32(h + 16), raw = read_u32(h + 20);
+        if (rva >= va && length <= raw_size && rva - va <= raw_size - length && raw + (size_t)(rva - va) + length <= size)
+            return raw + (rva - va);
+    }
+    return 0;
+}
+
+/* Puts the 1.0.4 launch patch's original bytes back in data (a private copy
+   of a file host_code_identity already parsed); 1 when every site held
+   exactly the patch. */
+static int undo_launch_patch(unsigned char *data, size_t size, AzimuthBuild build) {
+    if (build != AZIMUTH_104) return 0;
+    size_t at[ARRAY_COUNT(launch_sites_104)];
+    for (unsigned i = 0; i < ARRAY_COUNT(launch_sites_104); ++i) {
+        const LaunchSite *s = &launch_sites_104[i];
+        at[i] = file_offset(data, size, s->rva, s->size, NULL);
+        if (!at[i] || !memory_equal(data + at[i], s->patched, s->size)) return 0;
+    }
+    size_t lea = file_offset(data, size, LAUNCH_TITLE_LEA_104, 7, NULL);
+    if (!lea || data[lea] != 0x4c || data[lea + 1] != 0x8d || data[lea + 2] != 0x05) return 0;
+    uint32_t title = LAUNCH_TITLE_LEA_104 + 7 + (uint32_t)(int32_t)read_u32(data + lea + 3);
+    if (!file_offset(data, size, title, 2, ".rsrc\0\0\0")) return 0;
+    for (unsigned i = 0; i < ARRAY_COUNT(launch_sites_104); ++i)
+        memory_copy(data + at[i], launch_sites_104[i].original, launch_sites_104[i].size);
+    put_u32(data + lea + 3, LAUNCH_TITLE_TEXT_104 - (LAUNCH_TITLE_LEA_104 + 7));
+    return 1;
+}
+static int launch_patched;
+
 #define HOST_FILE_CAPACITY (256u * 1024u * 1024u)
 
 /* The release file (its size and SHA-256), or a copy with only its resources
@@ -178,6 +235,9 @@ static int verify_host_file(const wchar_t *path, const HostProfile *profile) {
         }
         if (!accepted && has_code_identity(profile) && host_code_identity(data, (size_t)total, digest))
             accepted = memory_equal(digest, profile->code, 32);
+        if (!accepted && has_code_identity(profile) && undo_launch_patch(data, (size_t)total, profile->build) &&
+            host_code_identity(data, (size_t)total, digest))
+            accepted = launch_patched = memory_equal(digest, profile->code, 32);
     }
     if (data) HeapFree(GetProcessHeap(), 0, data);
     return accepted;
@@ -341,6 +401,9 @@ static int verify_host(unsigned char *host, const wchar_t *path) {
         const HostProfile *profile = &host_profiles[i];
         if (profile->build == build && verify_host_file(path, profile)) {
             host_profile = profile;
+            if (launch_patched)
+                log_append("AZIMUTH: launch patch recognized (no launcher unless --show-launcher; game name as window title); "
+                           "the rest of the code is the release's.\r\n");
             return 1;
         }
     }

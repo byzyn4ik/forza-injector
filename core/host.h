@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <windows.h>
 #define MOD_NAME "forza_injector"
-#define MOD_VERSION "0.2.2"
+#define MOD_VERSION "0.2.3"
 #define PATH_CAPACITY 32768
 #define ARRAY_COUNT(array) (sizeof(array) / sizeof((array)[0]))
 #endif
